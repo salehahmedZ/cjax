@@ -1,11 +1,7 @@
-/**
- * 
- */
-
 
 var autoCompleteHelper = {};
 autoCompleteHelper = function() {
-	this.minChars = 2;
+	this.minChars = 1;
 	this.field = null;
 	this.item_id = 0;
 	this.helper = null;
@@ -19,9 +15,23 @@ autoCompleteHelper.prototype = {
 			alert('Element #'+idOfTheField+' was not found.');
 		} else {
 			this.createHelper();
-			this.field.onfocus = this.onFieldIn;
 			this.field.onblur = this.onFieldOut;
 		}
+	},
+	refresh: function(data, element) {
+		var list = new String('');
+
+
+		if(element.value.length >= this.minChars) {
+
+			for (x in data) {
+				list += '<a class=\'ACOption\' href="javascript:AC.select(\'' + data[x] + '\',\'' + x + '\');">' + data[x] + '</a>';
+			}
+		}
+
+		this.helper.innerHTML = list;
+		this.showHelper();
+		this.positionHelper();
 	},
 	element: function(element) {
 		if(this.field !=element) {
@@ -32,38 +42,28 @@ autoCompleteHelper.prototype = {
 		}
 	},
 	onFieldIn:function() {
-		AC.loop();
+		//AC.loop();
 	},
 	onFieldOut:function() {
 		clearTimeout(AC.item_id);
 		setTimeout("AC.hideHelper()", 120);
 	},
-	loop:function() {
-		var list = "";
-		var value = AC.field.value;
-		var data = AC.data;
-		
-		if(value.length >= this.minChars) {
-			for(x in data) {
-				if(value.toLowerCase() == data[x].substr(0, value.length).toLowerCase()) {
-					list += '<a href="javascript:AC.select(\'' + data[x] + '\');">' + data[x] + '</a>';
+	select:function(item, id) {
+		this.field.value = item;
+		this.hideHelper();
+
+		var params = CJAX._plugins.autocomplete.options;
+		if(params.c && typeof params.c == 'string') {
+			if(params.d) {
+				switch(params.d) {
+					case 'id':
+						item = id;
 				}
 			}
+
+			CJAX.ajaxSettings.cache = true;
+			autocomplete.get(params.c + '/' + item);
 		}
-		if(list != "") {
-			if(this.helperContent != list) {
-				this.helperContent = list;
-				this.helper.innerHTML = this.helperContent;
-			}
-			this.showHelper();
-		} else {
-			this.hideHelper();
-		}
-		AC.item_id = setTimeout("AC.loop()", 200);
-	},
-	select:function(country) {
-		this.field.value = country;
-		this.hideHelper();
 	},
 	// helper
 	createHelper:function() {
@@ -90,10 +90,9 @@ autoCompleteHelper.prototype = {
 		this.helper.style.display = "block";
 	},
 	hideHelper:function() {
-		this.helper.style.display = "none";
-	}, 
-	data: function() {
-		
+		setTimeout(function() {
+			this.helper.style.display = "none";
+		}, 20);
 	}
 };
 

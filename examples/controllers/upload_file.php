@@ -11,7 +11,7 @@
  * @author cj
  *
  */
-class controller_upload_file {
+class upload_file {
 
 	function post($files)
 	{
@@ -19,9 +19,8 @@ class controller_upload_file {
 	
 		//files listed under 'files' array are files that were successfully uploaded
 		if($files) {
-			$ajax->wait(2, false);
 			
-			$ajax->alert("Controller Response:".print_r($files,1));
+			//	$ajax->alert("Controller Response:".print_r($files,1));
 		}
 		//uncoment to see the response on the screen
 		//$ajax->overlayContent($ajax->dialog("<pre>".print_r($_REQUEST,1)."</pre>","Controller Response: upload_file/post "));
@@ -74,7 +73,7 @@ class controller_upload_file {
 	
 	function error()
 	{
-		
+		$ajax = ajax();
 		$upload_max = $ajax->toMB(ini_get('upload_max_filesize'));
 		$post_max = $ajax->toMB($pmax = ini_get('post_max_size'));// / 2;
 		$max_size = ($upload_max < $post_max) ? $upload_max : $post_max;

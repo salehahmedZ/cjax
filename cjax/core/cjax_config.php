@@ -1,5 +1,22 @@
 <?php
-//@app_header;
+/** ################################################################################################**
+ * CJ Galindo Copyright (c) .
+ * Permission is granted to copy, distribute and/or modify this document
+ * under the terms of the GNU Free Documentation License, Version 1.2
+ * or any later version published by the Free Software Foundation;
+ * Provided 'as is' with no warranties, nor shall the autor be responsible for any mis-use of the same.
+ * A copy of the license is included in the section entitled 'GNU Free Documentation License'.
+ *
+ *   ajax made easy with cjax
+ *   -- DO NOT REMOVE THIS --
+ *   -- AUTHOR COPYRIGHT MUST REMAIN INTACT -
+ *   Written by: CJ Galindo
+ *   Website: http://cjax.sourceforge.net                     $
+ *   Email: cjxxi@msn.com
+ *   Date: 2/12/2007                           $
+ *   File Last Changed:  10/05/2013            $
+ **####################################################################################################    */
+
 
 $js_dir = null;
 
@@ -31,9 +48,9 @@ class CJAX extends CJAX_FRAMEWORK {
 		if(self::$CJAX) {
 			return self::$CJAX;
 		}
-		
+
 		CoreEvents::errorHandlingConfig();
-		
+
 		$ajax = new CJAX_FRAMEWORK;
 		
 		if(!defined('JSON_FORCE_OBJECT')) {
@@ -44,13 +61,17 @@ class CJAX extends CJAX_FRAMEWORK {
 			$ajax->format = new cjaxFormat();
 			
 			$config = new ext;
-			if(file_exists($f = CJAX_HOME.'/'.'config.php')) {
+			if(file_exists($f = CJAX_HOME.'/config.php')) {
 				include($f);
 				if(isset($config)) {
 					$config = new ext($config);
 				}
 			}
 			$ajax->config = $config;
+
+			if(file_exists($f = CJAX_HOME.'/integration.php')) {
+				include($f);
+			}
 			
 			$ajax->initiate($ajax);
 			if(!$ajax->isAjaxRequest()) {
@@ -101,7 +122,28 @@ class CJAX extends CJAX_FRAMEWORK {
 		}
 		
 		if(!$js_dir = $ajax->config->js_path) {
-			if(@is_dir('cjax/')) {
+
+			$script_name = explode('/', dirname($_SERVER['SCRIPT_FILENAME']));
+
+			$count = 0;
+			$slashes  = null;
+			do  {
+				$new = implode('/', $script_name);
+
+				if(strpos(dirname(__FILE__), $new) !== false) {
+					$core_dir = ltrim(str_replace($new, '', dirname(__FILE__)),'/');
+					break;
+				}
+				$count ++;
+			} while(array_pop($script_name));
+
+			if($count) {
+				$slashes  = str_repeat('../', $count);
+			}
+
+			if(is_dir($core_dir) || is_dir($slashes.$core_dir)) {
+				$js_dir =  $slashes.$core_dir . '/js/';
+			} else if(@is_dir('cjax/core')) {
 				$js_dir  = "cjax/core/js/";
 			} else if(@is_dir('core/js/')) {
 				$js_dir  = "core/js/";
@@ -112,7 +154,7 @@ class CJAX extends CJAX_FRAMEWORK {
 			} else if(@is_dir('../../../cjax')) {
 				$js_dir  = "../../../cjax/core/js/";
 			} else {
-				die("Cannot find the correct path to Js directory.");
+ 				die(sprintf("Cannot find the correct path to Js directory(tried: {$slashes}{$core_dir})"));
 			}
 			
 			$error = error_get_last();
@@ -120,6 +162,7 @@ class CJAX extends CJAX_FRAMEWORK {
 			if($error &&  preg_match('%.*(open_basedir).*File\(([^\)]+)%', $error['message'], $match)) {
 				die( sprintf('Restriction <b>open_basedir</b> is turned on. File or directory %s will not be accessible while this setting is on due to security directory range.', $match[2]) );
 			}
+			$ajax->config->js_path = $js_dir;
 		}
 		$ajax->js($js_dir);
 		

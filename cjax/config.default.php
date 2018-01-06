@@ -6,9 +6,10 @@
 
 
 /**
- * Enable advanced selectors (all jquery selectors will work), 
+ * Setting to where the js directory is.
+ * Eg: http://yoursite.com/cjax/
  */
-$config->sizzle = false;
+$config->js_path = '';
 
 
 /**
@@ -81,6 +82,14 @@ $config->camelizeUcfirst = false;
  */
 $config->upload_dir = '';
 
+
+/**
+ * URL of directory where images are uploaded.
+ * Eg: http://yoursite.com/uploads/
+ * This setting is used by any feature that would display images
+ * including the ajax uploader plugin.
+ */
+$config->preview_url = '';
 
 
 

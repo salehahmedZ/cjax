@@ -11,7 +11,7 @@ $ajax->click("btnSubmit",$ajax->form("ajax.php?send_form/submit_form"));
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<?php echo $ajax->init();?>
+	<?php echo $ajax->init(false);?>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Send Form...</title>
 	<link rel="stylesheet" type="text/css" href="resources/send_form/view.css" media="all">
@@ -24,7 +24,6 @@ Convert any HTML form over to ajax
 <br />
 <br />
 <div style="text-align: left">
-Code used:
 <?php 
 echo $ajax->code("
 //bind button to ajax-form request

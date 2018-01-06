@@ -12,61 +12,49 @@ $ajax = ajax();
 ### button_id, $validate - rules, messages, handlers, errorElement, see jquery.validation to see available options.
 
 //$ajax->log = 1;
-if($ajax->isPlugin('validate')) {
-		
-	$rules = array(
-		'rules' => array(
-			'a[name]' => array(
-				'required' => true,
-				'minlength'  => 5,
-			),
-			'a[last_name]' => array(
-				'required' => true,
-				'minlength'  => 5,
-			),
-			'a[email]' => array(
-				'required' => false,
-				'email' => false
-			)
+
+$rules = array(
+	'rules' => array(
+		'a[name]' => array(
+			'required' => true,
+			'minlength'  => 5,
 		),
-		'messages' => array(
-			'a[name]' => array(
-				'required' => 'Please enter your name',
-			),
-			'a[last_name]' => array(
-				'required' => 'Enter your last name',
-			),
-			'a[email]' => array(
-				'required' => 'Email is required',
-			)
-			
+		'a[last_name]' => array(
+			'required' => true,
+			'minlength'  => 5,
+		),
+		'a[email]' => array(
+			'required' => false,
+			'email' => false
 		)
-	);
-	
-	$validate = $ajax->validate('btn_saveForm', 'ajax.php?send_form/validate', $rules);
-	
-	$rule  = array(
-		'required' => array( true , 'This field is required!'),
-		'minlength'=> array( 2 ,'Minimum length is 2!')
-	);
-	
-	$validate->rule('a[state]',$rule);
+	),
+	'messages' => array(
+		'a[name]' => array(
+			'required' => 'Please enter your name',
+		),
+		'a[last_name]' => array(
+			'required' => 'Enter your last name',
+		),
+		'a[email]' => array(
+			'required' => 'Email is required',
+		)
+
+	)
+);
+
+$validate = $ajax->validate('btn_saveForm', 'ajax.php?send_form/validate', $rules);
+
+$rule  = array(
+	'required' => array( true , 'This field is required!'),
+	'minlength'=> array( 2 ,'Minimum length is 2!')
+);
+
+$validate->rule('a[state]',$rule);
 	
 	
 	//$validate->imports(array('jquery-1.7.2.min.js','jquery.validate.min.js'));
 	
-	
-} else {
-	$data = "
-	<h2 style='color:red;'>Cjax validate plugin was not found. Install it, then refresh this page.</h2>
-	<br />
-	This plugin is by default not included in this package. You must  download the zip and place its content in cjax/plugins directory.
-	<h4>Download This plugin</h4>
-	<a target='_blank' href='https://sourceforge.net/projects/cjax/files/Plugins/'>https://sourceforge.net/projects/cjax/files/Plugins/</a>
-	
-	";
-	$ajax->update("not_found",$data);
-}
+
 
 $rules = $ajax->code("
 \$rules = array(
@@ -104,7 +92,7 @@ $code = $ajax->code("
 \$validate = \$ajax->validate('btn_saveForm', 'ajax.php?send_form/validate', \$rules);
 ");
 
-$ajax->Exec('code', $ajax->overlayContent($code, array('width'=> '800px','top'=>30)));
+$ajax->click('code', $ajax->overlayContent($code, array('width'=> '800px','top'=>30)));
 
 
 $more_code = $ajax->code("
@@ -126,15 +114,19 @@ $more_code = $ajax->code("
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<?php echo $ajax->init();?>
+	<?php echo $ajax->init(false);?>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Validate Form...</title>
 	<link rel="stylesheet" type="text/css" href="resources/css/user_guide.css" media="all">
 	<link rel="stylesheet" type="text/css" href="resources/send_form/view.css" media="all">
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 	<script type="text/javascript" src="resources/send_form/view.js"></script>
 </head>
 <body>
+<header>
+	<div style='padding: 15px;'>
+		<a href='http://cjax.sourceforge.net'><img src='http://cjax.sourceforge.net/media/logo.png' border=0/></a>
+	</div>
+</header>
 <!-- START NAVIGATION -->
 <div id="nav"><div id="nav_inner"></div></div>
 <div id="nav2"><a name="top">&nbsp;</a></div>
@@ -155,7 +147,7 @@ $more_code = $ajax->code("
 <tr>
 <td id="breadcrumb">
 <a href="http://cjax.sourceforge.net/">Project Home</a> &nbsp;&#8250;&nbsp;
-<a href="http://cjax.sourceforge.net/examples/">Demos</a> &nbsp;&#8250;&nbsp;
+<a href="./">Demos</a> &nbsp;&#8250;&nbsp;
 Validate Plugin
 </td>
 <td id="searchbox"><form method="get" action="http://www.google.com/search"><input type="hidden" name="as_sitesearch" id="as_sitesearch" value="cjax.sourceforge.net/" />Search Project User Guide&nbsp; <input type="text" class="input" style="width:200px;" name="q" id="q" size="31" maxlength="255" value="" />&nbsp;<input type="submit" class="submit" name="sa" value="Go" /></form></td>
@@ -171,8 +163,6 @@ Validate Plugin
 <h1>Validate Plugin</h1>
 
 <p>This Plugins uses Jquery and Jquery.validate plugin to dynamically add validation functionality to your forms through CJAX Api.</p>
-
-<p class="important"><strong>Important:</strong>&nbsp; You <kbd>MUST</kbd> load Jquery on the page for this plugin to work. You do not need to load jquery.validate plugin, it is loaded automatically if not found (Cjax 5.1+).</p>
 
 <p>Features:</p>
 
@@ -247,6 +237,7 @@ Enter an field entry to for each field you which to validate. Each entry takes t
 
 <h2>Demo</h2>
 
+<a href="#" id="code">View</a>
 
 <div id='not_found'></div>
 

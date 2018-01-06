@@ -15,87 +15,76 @@
  * @param fields Json Object
  */
 
+CJAX.importFile({
+	files: 'https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js',
+	plugin:'validate',
+	check: 'jQuery',
+	payload: 'jquery.validate.min.js'
+});
 
 function validate(btn_id, url, fields)
 {
-	if(typeof jQuery  =='undefined') {
-		CJAX.error('Validate Plugin requires Jquery library.');
-		//jquery was not found
-		return;
-	}
 	if(!btn_id) {
-		return console.error('Validate: Empty Submit Button');
-	}
-	if(typeof $.validator =='undefined') {
-		/**
-		 * uploadify jquery plugin was not detected, so we will try to load it automatically
-		 */
-		CJAX.importFile(this.base+'jquery.validate.min.js',function() {
-			
-			if(typeof $.validator !='undefined') {
-				plugin = CJAX.plugins['validate'];
-				params = plugin.params;
-				
-				//call this plugin recursively
-				return plugin.fn(params['a'],params['b'],params['c'],params['d'],params['e'],params['f']);
-			} else {
-				CJAX.error('CJAX: Validate Plugin requires validate Jquery plugin.');
-			}
-		});
+		console.error('Validate: Empty Submit Button');
 		return;
 	}
 
-	if(!fields) {
-		//an array was not passed.
-		var fields = {};
-	}
-	//get form
-	var form = $('#'+btn_id).closest('form');
-	
-	//prevent request or api and returns it  in a function
-	var callback = this.callback;
-	
-	function postCallback(buffer)
-	{
-		var postCallback = CJAX.decode(CJAX.xml('postCallback',buffer));
-		
-		if(!postCallback) {
-			return true;
+	/**
+	 * uploadify jquery plugin was not detected, so we will try to load it automatically
+	 */
+	this.queue('jquery.validate.min.js',function() {
+
+		if(!fields) {
+			//an array was not passed.
+			var fields = validate.params.c;
 		}
-		postCallback = CJAX.util.json(postCallback);
-		CJAX.process_all(postCallback,postCallback);
-	}
-	
-	if(typeof fields.invalidHandler !='function') {
-		_invalidHandler =  function(form, validator) {};
-	}
-	if(typeof fields.submitHandler !='function') {
-		_submitHandler =  function(form) {
-			if(url) {
-				CJAX.ajaxSettings.success = function() {
-					postCallback(validate.buffer);
-					CJAX.ajaxSettings.success = null;
-				};
-				callback();
-			} else {
-				setTimeout(function() {
-					callback();
-				}, 300);
-				postCallback(validate.buffer);
-				
-				
+
+		//get form
+		var form = $('#'+btn_id).closest('form');
+
+		//prevent request or api and returns it  in a function
+		var callback = this.callback;
+
+		function postCallback(buffer)
+		{
+			var postCallback = CJAX.decode(CJAX.xml('postCallback',buffer));
+
+			if(!postCallback) {
+				return true;
 			}
-		};
-	}
-	
-	$(document).ready(function() {
-		var val = $(form).validate({
-			errorElement: (fields.errorElement? fields.errorElement: "div"), 
+			postCallback = CJAX.util.json(postCallback);
+			CJAX.process_all(postCallback,postCallback);
+		}
+
+		if(typeof fields.invalidHandler !='function') {
+			_invalidHandler =  function(form, validator) {};
+		}
+		if(typeof fields.submitHandler !='function') {
+			_submitHandler =  function(form) {
+				if(url) {
+					CJAX.ajaxSettings.success = function() {
+						postCallback(validate.buffer);
+						CJAX.ajaxSettings.success = null;
+					};
+					if(CJAX.callback.validate) {
+						CJAX.callback.validate.call();
+					}
+				} else {
+					if(CJAX.callback.validate) {
+						CJAX.callback.validate.call();
+					}
+					postCallback(validate.buffer);
+				}
+			};
+		}
+
+
+		var val = form.validate({
+			errorElement: (fields.errorElement? fields.errorElement: "div"),
 			invalidHandler: _invalidHandler,
 			submitHandler: _submitHandler,
 			rules: fields.rules,
 			messages: fields.messages
 		});
 	});
-	
 }

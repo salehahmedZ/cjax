@@ -7,7 +7,7 @@
  * @author cj
  *
  */
-class plugin_validate extends plugin {
+class Validate extends plugin {
 	
 	private $rules;
 	
@@ -34,20 +34,15 @@ class plugin_validate extends plugin {
 			default:
 				$xmlObj->callback = $this;
 		}
-		
+
 	}
 	
 	function onLoad($button_id, $post_url, $rules = array(), $import_js = false)
 	{
 		$ajax = ajax();
-		
-		$this->callback($ajax->click($button_id,$ajax->form($post_url)));
-		
-		
-		if($import_js) {
-			$this->import('jquery.validate.min.js');
-		}
-		
+
+		$ajax->on('validate', $ajax->form($post_url));
+
 		$this->rules = $rules;
 	}
 	

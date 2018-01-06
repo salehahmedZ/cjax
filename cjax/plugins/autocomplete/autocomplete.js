@@ -1,40 +1,79 @@
 /**
- * autocomplete 1.0
- * 
+ * autocomplete 1.2
+ *
  * Auto Complete Plugin for Cjax
  */
 
 //allows to import these files before the plugin is ran.
 
 
-
 CJAX.importFile({
-	files: 'css/style.css,helper.js',
+	files: 'helper.js,css/style.css',
 	plugin:'autocomplete',
-	callback: function() {
-		AC.init(CJAX.xml('element_id',CJAX._plugins['autocomplete']));
+	callbacks: {
+		0: function() {
+			var element = CJAX._plugins['autocomplete'].element_id;
+
+			autocomplete.ready(function() {
+				AC.init(element);
+			});
+
+		}
 	}
 });
 
+function autocomplete(url , fulll_load) {
+	version = CJAX.version.replace(/[^0-9\.].*/, '');
 
-function autocomplete(url)
-{
-	version = CJAX.version.replace(/[^0-9\.].*/,'');
-	
-	if(parseFloat(version) < 5.3) {
-		alert('Sorry, Autocomplete Plugin requires Cjax 5.3 or greater.');
-		
-		//return this.clear();//remove keyup event only in > 5.3
-		return CJAX._EventCache.flushElement(this.element); ////remove keyup event
-	}
-	
 	CJAX.ajaxSettings.cache = true;
-	
-	url = url.replace(/\/+$/,"");//remove any slashes at the end
-	
-	this.get(url+'/'+this.element.value+'/', function(data) {
-		if(data) {
-			AC.data = data;
-		}
-	},'json');
+
+	var element = CJAX.$(CJAX._plugins['autocomplete'].element_id);
+	var str = element.value;
+
+	url = autocomplete.url = url.replace(/\/+$/, "");//remove any slashes at the end
+
+	if (str) {
+
+		this.ready(function() {
+			//executes until helper.js if fully loaded.
+			autocomplete.load('helper.js', function() {
+
+				if (fulll_load) {
+
+					var limit = 10;
+
+					//element.setAttribute('disabled','disabled');
+					CJAX.info('Loading Image List..', 30)
+					autocomplete.get(url, function (data) {
+						//element.removeAttribute('disabled');
+						CJAX.message();
+
+						//convert json into js array
+						new_data = Object.keys(data).map(function (key) {
+							return data[key]
+						})
+						//search string
+						if (str.length == 1) {
+							str = '^' + str;
+						}
+						new_data = new_data.filter(/./.test.bind(new RegExp(str, 'i')));
+
+						//how many records
+						new_data = new_data.slice(0, limit)
+
+						if (new_data) {
+							AC.refresh(new_data, element);
+						}
+					}, 'json');
+				} else {
+
+					autocomplete.get(url += '/' + str, function (data) {
+						if (data) {
+							AC.refresh(data, element);
+						}
+					}, 'json');
+				}
+			});
+		});
+	}
 }
